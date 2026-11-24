@@ -42,7 +42,7 @@ class: cover
     <ul class="tight" style="margin:0;padding-left:1.1em">
       <li>Il dominio implementa <strong>solo il comportamento corrente</strong></li>
       <li>Ogni cambio incompatibile ha un piccolo <strong>converter</strong> che traduce per i client vecchi</li>
-      <li>Supporto per <strong>15 mesi</strong>, poi il converter si cancella</li>
+      <li>Supporto per <strong>15 mesi</strong>, poi si alza la versione minima e il converter va cancellato: il guard lo impone</li>
       <li>Se dimentichi qualcosa, te lo dicono build e CI</li>
     </ul>
   </div>
@@ -345,34 +345,15 @@ if (res.status === 400 && body.code === 'UNSUPPORTED_API_VERSION') {
 
 <div class="eyebrow">PoC, non mergiato</div>
 
-# Dove siamo e <em>cosa manca</em>
+# Dove <em>siamo</em>
 
-<div class="grid grid-cols-3 gap-4 mt-2">
-  <div class="card-teal small">
-    <div class="head-teal">Fatto</div>
-    <ul class="tight" style="margin:0;padding-left:1.1em">
-      <li>PoC su 4 repo: estensioni Quarkus, jenkins-lib-common, files-ce, files Advanced</li>
-      <li>Gli IT di main passano sul PoC senza header: il contratto di oggi non cambia (tranne una route preview tolta di proposito)</li>
-      <li>Branch demo con cambi reali (modifica, aggiunta, deprecazione, rimozione), IT tutti verdi</li>
-      <li>Nessun overhead misurabile sui tempi dei test</li>
-    </ul>
-  </div>
-  <div class="card-red small">
-    <div class="head-red">Costi</div>
-    <ul class="tight" style="margin:0;padding-left:1.1em">
-      <li>≈7k righe di produzione nelle estensioni, più i test</li>
-      <li>L'integrazione GraphQL usa tre dettagli interni di SmallRye: un upgrade può romperla, lo vedono i test</li>
-      <li>Body REST, status e subscription non si convertono</li>
-    </ul>
-  </div>
-  <div class="card small">
-    <div class="head-teal">Prima del merge</div>
-    <ul class="tight" style="margin:0;padding-left:1.1em">
-      <li>Header in files-ui e files-mobile</li>
-      <li>Mergiare la PR #365: risposte di upload come entity</li>
-      <li>Jenkinsfile di files-ce e Advanced su un tag di jenkins-lib-common</li>
-    </ul>
-  </div>
+<div class="card-teal mt-4">
+  <ul class="tight" style="margin:0;padding-left:1.1em">
+    <li>PoC su 4 repo: estensioni Quarkus, jenkins-lib-common, files-ce, files Advanced</li>
+    <li>Gli IT di main passano sul PoC senza header: il contratto di oggi non cambia (tranne una route preview tolta di proposito)</li>
+    <li>Branch demo con cambi reali (modifica, aggiunta, deprecazione, rimozione), IT tutti verdi</li>
+    <li>Nessun overhead misurabile sui tempi dei test</li>
+  </ul>
 </div>
 
 ---
