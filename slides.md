@@ -224,6 +224,7 @@ void anOldClientUploadsIntoItsParentId() { ... }
     <ul class="tight" style="margin:0;padding-left:1.1em">
       <li>Contratto cambiato senza una riga nuova nel registry → <strong>commit bloccato</strong></li>
       <li>Converter ancora in finestra cancellato → <strong>commit bloccato</strong></li>
+      <li>Converter fuori finestra lasciato nel registry → <strong>commit bloccato</strong></li>
       <li>Docs non rigenerati → li rigenera l'hook</li>
     </ul>
   </div>
@@ -275,7 +276,7 @@ void anOldClientUploadsIntoItsParentId() { ... }
 
 <SectionLabel label="Release e finestra" />
 
-<div class="eyebrow">Dalla PR alla cancellazione, senza versioni scritte a mano</div>
+<div class="eyebrow">Dalla PR alla cancellazione: il since lo scrive la release, non il dev</div>
 
 # La vita di <em>un converter</em>
 
@@ -284,8 +285,8 @@ void anOldClientUploadsIntoItsParentId() { ... }
   <div class="tl-item"><div class="tl-dot done"></div><div class="tl-bubble"><div class="tl-bubble-date">1 · PR</div><div class="tl-bubble-title">since = CURRENT</div><div class="tl-bubble-note">vale per ogni client con versione: i test lo esercitano subito</div></div></div>
   <div class="tl-item"><div class="tl-dot done"></div><div class="tl-bubble"><div class="tl-bubble-date">2 · merge</div><div class="tl-bubble-title">semantic-release</div><div class="tl-bubble-note">ogni merge su main è una release, il tipo di commit decide il numero</div></div></div>
   <div class="tl-item"><div class="tl-dot today"></div><div class="tl-bubble today-bubble"><div class="tl-bubble-date">3 · stamping</div><div class="tl-bubble-title">CURRENT → "3.1.0"</div><div class="tl-bubble-note">scritto nel commit di release, per sempre</div></div></div>
-  <div class="tl-item"><div class="tl-dot"></div><div class="tl-bubble"><div class="tl-bubble-date">4 · 15 mesi</div><div class="tl-bubble-title">la CI avvisa</div><div class="tl-bubble-note">una PR alza oldest-supported: il converter si spegne, i client sotto ricevono 400</div></div></div>
-  <div class="tl-item"><div class="tl-dot"></div><div class="tl-bubble"><div class="tl-bubble-date">5 · pulizia</div><div class="tl-bubble-title">si cancella</div><div class="tl-bubble-note">converter, tipo legacy e test; il guard lo impedisce finché è in finestra</div></div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-bubble"><div class="tl-bubble-date">4 · 15 mesi</div><div class="tl-bubble-title">il build di main avvisa</div><div class="tl-bubble-note">una riga nel log elenca le versioni fuori finestra ancora supportate</div></div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-bubble"><div class="tl-bubble-date">5 · una PR</div><div class="tl-bubble-title">alza oldest-supported e cancella</div><div class="tl-bubble-note">converter, tipo legacy e test insieme: il guard blocca chi ne lascia uno, e chi lo cancella prima</div></div></div>
 </div>
 
 <div class="grid grid-cols-2 gap-6 mt-4">
