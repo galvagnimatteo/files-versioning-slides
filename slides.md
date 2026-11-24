@@ -72,7 +72,7 @@ X-FILES-API-VERSION: 3.0.14
 </div>
 <div>
   <ul class="tight" style="padding-left:1.1em">
-    <li>Il numero è la versione del pacchetto decisa da <strong>semantic-release</strong> (CE <code>3.x</code>, Advanced <code>4.x</code>): nessun contatore da allineare a mano</li>
+    <li>Il numero è la <strong>versione del pacchetto così com'è</strong>, decisa da semantic-release (CE <code>3.x</code>, Advanced <code>4.x</code>): ogni release la muove, anche quando non tocca le API</li>
     <li><strong>Nessun header = current</strong>: chi non lo manda vede il comportamento nuovo, come oggi</li>
     <li><strong>Backward</strong> (client vecchio, server nuovo): converte il server</li>
     <li><strong>Forward</strong> (client nuovo, server vecchio): il server dichiara la sua versione, si adatta il client</li>
@@ -164,16 +164,16 @@ void anOldClientUploadsIntoItsParentId() { ... }
 
 # Non tutti i cambi <em>vogliono un converter</em>
 
-| Cambio | Esempio | Nel registry | Commit |
-|---|---|---|---|
-| <span class="pill pill-teal">additivo</span> | nuovo endpoint, campo o parametro opzionale | riga `description` | `feat` |
-| <span class="pill pill-red">incompatibile</span> | campo rinominato, parametro diventato obbligatorio | riga `converter`, più converter e test | `feat` * |
-| <span class="pill pill-amber">deprecazione</span> | `@Deprecated` su una query | riga `description` | `feat` |
-| <span class="pill pill-red">rimozione</span> | query o endpoint tolto | riga `description`: nessun converter può riportarlo | `feat!` |
+| Cambio | Esempio | Nel registry |
+|---|---|---|
+| <span class="pill pill-teal">additivo</span> | nuovo endpoint, campo o parametro opzionale | riga `description` |
+| <span class="pill pill-red">incompatibile</span> | campo rinominato, parametro diventato obbligatorio | riga `converter`, più converter e test |
+| <span class="pill pill-amber">deprecazione</span> | `@Deprecated` su una query | riga `description` |
+| <span class="pill pill-red">rimozione</span> | query o endpoint tolto | riga `description`: nessun converter può riportarlo |
 
 <div class="grid grid-cols-2 gap-4 mt-4 small">
   <div class="card-amber">Rimuovere è un processo: <strong>depreca → i client migrano → la finestra supera la deprecazione → rimuovi</strong>. Nessun controllo sa se i client hanno smesso di usarla.</div>
-  <div class="card">Il tipo di commit decide il numero: <code>feat</code> → minor, <code>feat!</code> → major<div class="mt-2">* Proposta da decidere: <code>!</code> solo per ciò che nessun converter copre</div></div>
+  <div class="card">Il numero non dipende dal tipo di cambio API: è la <strong>versione del pacchetto</strong>, che semantic-release alza dai commit come ha sempre fatto. Le API non hanno regole di commit proprie.</div>
 </div>
 
 ---
@@ -372,7 +372,6 @@ if (res.status === 400 && body.code === 'UNSUPPORTED_API_VERSION') {
       <li>Header in files-ui e files-mobile</li>
       <li>Mergiare la PR #365: risposte di upload come entity</li>
       <li>Jenkinsfile di files-ce e Advanced su un tag di jenkins-lib-common</li>
-      <li>Decidere <code>feat</code> o <code>feat!</code> per i cambi con converter</li>
       <li>Chiudere il rischio dei release branch</li>
     </ul>
   </div>
