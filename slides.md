@@ -265,11 +265,9 @@ void anOldClientUploadsIntoItsParentId() { ... }
 
 | Cosa passa | Perché | Chi lo prende |
 |---|---|---|
-| Una riga `description` per un cambio che voleva un converter | il guard chiede di dichiarare, non giudica | review |
-| Un secondo cambio nella stessa PR senza la sua riga | il guard conta le righe del branch, non i cambi | review |
+| Un secondo cambio senza la sua riga, o una `description` dove serviva un converter | il guard chiede almeno una riga per PR, non una per ogni operazione toccata, e non ne giudica il tipo | review |
 | Stessa forma, significato diverso (unità, semantica) | i docs non cambiano | review |
 | Client che non mandano l'header | sono serviti come current | header nei client prima del primo converter |
-| Cambio incompatibile scritto a mano su un release branch | arriva non convertito ai client delle linee più nuove | rischio aperto |
 
 <div class="card text-center mt-4 small">I controlli prendono le <strong>dimenticanze in buona fede</strong>. Le scelte sbagliate le prende la review.</div>
 
@@ -372,7 +370,6 @@ if (res.status === 400 && body.code === 'UNSUPPORTED_API_VERSION') {
       <li>Header in files-ui e files-mobile</li>
       <li>Mergiare la PR #365: risposte di upload come entity</li>
       <li>Jenkinsfile di files-ce e Advanced su un tag di jenkins-lib-common</li>
-      <li>Chiudere il rischio dei release branch</li>
     </ul>
   </div>
 </div>
