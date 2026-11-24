@@ -157,7 +157,7 @@ converter applicato ⇔ attivo
 final class FilesApiChanges {}
 ```
 
-<Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/versioning/FilesApiChanges.java" lines="10-28" />
+<Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/versioning/FilesApiChanges.java" lines="10-29" />
 
 </div>
 <div>
@@ -227,7 +227,7 @@ quarkus.carbonio-api-versioning.versions-path=/versions
     <li><strong>15 mesi</strong>, misurati sui tag di main</li>
     <li><code>oldest-supported</code> si cambia <strong>a mano</strong>, in una PR revisionata</li>
     <li>La CI di main avvisa quando un tag supportato supera i 15 mesi: solo warning</li>
-    <li>Converter con <code>since ≤ oldest-supported</code>: disattivati, il codice resta, il build lo segnala</li>
+    <li>Converter con <code>since ≤ oldest-supported</code>: disattivati, il codice resta, il build lo segnala. Cancellarne uno ancora attivo lo blocca il guard</li>
     <li>La finestra parte dalla prima release con il modulo: i client di prima non mandavano l'header</li>
   </ul>
 </div>

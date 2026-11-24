@@ -45,7 +45,7 @@ bash .ci/stamp-api-changes.sh $V .../versioning/FilesApiChanges.java
 </div>
 
 <Src repo="ce" path=".releaserc.json" lines="44-56" />
-<Src repo="ce" path=".ci/stamp-api-changes.sh" lines="21-34" />
+<Src repo="ce" path=".ci/stamp-api-changes.sh" lines="21-41" />
 <Src repo="jlc" path="vars/dt3_pipeline.groovy" lines="719-731" label="stage Release: solo main e release/*" />
 
 ---
@@ -77,6 +77,7 @@ bash .ci/stamp-api-changes.sh $V .../versioning/FilesApiChanges.java
 
 ```diff
 # chore(release): 4.0.0, FilesApiChanges.java
+-import com.zextras.carbonio.quarkus.extensions.apiversioning.ApiVersion;
 -@ApiChange(since = ApiVersion.CURRENT,
 +@ApiChange(since = "4.0.0",
      converter = UploadDestinationIdConverter.class)
@@ -92,7 +93,8 @@ bash .ci/stamp-api-changes.sh $V .../versioning/FilesApiChanges.java
 ```
 
   <div class="xs">Da qui in poi i client <code>&lt; 4.0.0</code> passano dai converter, quelli <code>≥ 4.0.0</code> o senza header no.</div>
-  <div class="note">L'import <code>ApiVersion</code> resta inutilizzato fino alla prossima riga <code>CURRENT</code> (noto, innocuo).</div>
+  <div class="note">Lo stamper toglie anche l'import <code>ApiVersion</code> rimasto inutilizzato: il commit di release resta pulito per il formatter.</div>
+  <Src repo="ce" path=".ci/stamp-api-changes.sh" lines="29-33" label="stamper: import" />
 </div>
 </div>
 
@@ -118,7 +120,7 @@ API versioning: 6 problem(s):
 </div>
 
 <div class="grid grid-cols-3 gap-3 mt-2 xs">
-  <div class="card"><div class="head-teal">Stamper</div>Esce con 1 se resta un <code>since</code> che non è <code>"X.Y.Z"</code>: la release si ferma prima del commit.<br><Src repo="ce" path=".ci/stamp-api-changes.sh" lines="27-33" /></div>
+  <div class="card"><div class="head-teal">Stamper</div>Esce con 1 se resta un <code>since</code> che non è <code>"X.Y.Z"</code>: la release si ferma prima del commit.<br><Src repo="ce" path=".ci/stamp-api-changes.sh" lines="34-40" /></div>
   <div class="card"><div class="head-teal">Tag build</div>Versione senza suffisso + <code>since = current</code> = errore (sopra).<br><Src repo="ext" path="api-versioning/deployment/src/main/java/com/zextras/carbonio/quarkus/extensions/apiversioning/deployment/ConverterScanner.java" lines="500-515" label="checkOwnCurrent" /></div>
   <div class="card"><div class="head-teal">Tetto di versione</div><code>since</code> stampato sopra la X.Y.Z del build = errore. Copre il cherry-pick di un converter su una linea più vecchia.<br><Src repo="ext" path="api-versioning/deployment/src/main/java/com/zextras/carbonio/quarkus/extensions/apiversioning/deployment/ConverterScanner.java" lines="314-329" label="since sopra il build" /></div>
 </div>

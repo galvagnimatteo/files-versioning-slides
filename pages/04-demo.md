@@ -19,10 +19,11 @@ class: section
 | **B** | `POST /upload/check`: pre-flight di un upload | <span class="pill pill-teal">additivo</span> | 1 riga description | <Src repo="commit" path="3f9c2535c13afc46c8fd52c4d85700c9007c7703" /> |
 | **C1** | query GraphQL `getAccountByEmail` deprecata | <span class="pill pill-amber">deprecazione</span> | 1 riga description | <Src repo="commit" path="530b96daae9571c8e21d7e48a2bcb013dcb8a6af" /> |
 | **C2** | `getAccountByEmail` rimossa | <span class="pill pill-red">breaking</span> | 1 riga description | <Src repo="commit" path="9d8a0da342905ca36cb7acd9bf1bab0968f9b99c" /> |
+| **D** | `POST /upload-version`: `version` sempre presente, anche quando vale 1 | <span class="pill pill-red">incompatibile</span> | 1 converter di valore | <Src repo="commit" path="a1da2eff79db4866e679d45f6cfd43ec235cac1b" /> |
 
 <div class="grid grid-cols-3 gap-3 mt-4">
-  <div class="stat"><div class="stat-num">657</div><div class="stat-label">IT verdi in locale (<code>mvn clean verify</code>)</div></div>
-  <div class="stat"><div class="stat-num">9</div><div class="stat-label">blocchi reali incontrati e catturati</div></div>
+  <div class="stat"><div class="stat-num">659</div><div class="stat-label">IT verdi in locale (<code>mvn clean verify</code>)</div></div>
+  <div class="stat"><div class="stat-num">11</div><div class="stat-label">blocchi reali incontrati e catturati</div></div>
   <div class="stat"><div class="stat-num">0</div><div class="stat-label">release fatte: branch di test, mai mergiato</div></div>
 </div>
 
@@ -47,7 +48,7 @@ ParentId: 7d1f…        # opzionale: se manca, Home
 ```
 
   <Src repo="poc" path="app/src/main/java/com/zextras/carbonio/files/rest/resources/BlobResource.java" lines="258" label="default silenzioso a LOCAL_ROOT" />
-  <Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/rest/types/UploadVersionResponse.java" lines="23-29" label="TODO: serve un breaking change" />
+  <Src repo="poc" path="app/src/main/java/com/zextras/carbonio/files/rest/types/UploadVersionResponse.java" lines="23-29" label="TODO: serve un breaking change" />
 </div>
 <div>
   <div class="head-teal">Dopo</div>
@@ -97,8 +98,8 @@ return Response.ok(new UploadResponse(nodeId.get(), 1))
     .build();
 ```
 
-<Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/rest/resources/BlobResource.java" lines="149-157" />
-<Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/rest/resources/BlobResource.java" lines="304-331" />
+<Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/rest/resources/BlobResource.java" lines="148-156" />
+<Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/rest/resources/BlobResource.java" lines="295-331" />
 
 </div>
 <div class="code-sm">
@@ -115,7 +116,7 @@ return Response.ok(new UploadResponse(nodeId.get(), 1))
 +      required: [node_id, version]
 ```
 
-<Src repo="ce" path="app/docs/openapi.yaml" lines="1572-1640" />
+<Src repo="ce" path="app/docs/openapi.yaml" lines="1566-1632" />
 <Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/rest/types/UploadResponse.java" lines="10-14" />
 
   <div class="note mt-2">I docs li rigenera il build (hook pre-commit <code>maven</code>). Se li dimentichi, in CI fallisce "Verify Build Outputs".</div>
@@ -150,7 +151,7 @@ $ git commit            # hook pre-commit "api-guard" (.ci/api-guard.sh --staged
   <div class="card-amber">Branch impilato sul PoC: in automatico la base è <code>main</code> e la riga del PoC basta a passare. Per la demo ho passato <code>--base-branch poc-files-versioning</code>.</div>
 </div>
 
-<Src repo="ce" path=".ci/api-guard.sh" lines="184-194" label="api-guard.sh count_current" />
+<Src repo="ce" path=".ci/api-guard.sh" lines="200-210" label="api-guard.sh count_current" />
 <Src repo="ce" path=".pre-commit-config.yaml" lines="106-114" />
 <Src repo="jlc" path="vars/dt3_pipeline.groovy" lines="286" label="dt3_pipeline stage API Guard" />
 
@@ -336,7 +337,8 @@ converters that did change something:
 ```
 
   </div>
-  <div class="xs">Soluzione: restituire l'<strong>entity</strong> e lasciare serializzare Quarkus REST.</div>
+  <div class="xs">Soluzione: restituire l'<strong>entity</strong> e lasciare serializzare Quarkus REST. Dopo la demo l'abbiamo fatto nel PoC per <code>/upload</code>, <code>/upload-version</code> e <code>/upload-to</code>: il JSON resta identico.</div>
+  <Src repo="commit" path="653fa5fb34fcbd4933fbbcf1f3766f29a3baa829" label="refactor(rest): entity" />
   <Src repo="ext" path="api-versioning/test/src/main/java/com/zextras/carbonio/quarkus/extensions/apiversioning/test/ApiVersionExtension.java" lines="66-100" label="kit: afterEach" />
 </div>
 </div>
@@ -577,5 +579,68 @@ exists; use getAccountsByEmail(emails: [email]).
 ```
 
   <div class="card-amber xs">Processo giusto: depreca → i client migrano → la finestra supera la release della deprecazione → rimuovi. <strong>Nessun check sa se i client hanno smesso di usarla.</strong></div>
+</div>
+</div>
+
+---
+
+<SectionLabel label="Demo · D" />
+
+<div class="eyebrow">Il TODO di /upload-version: stesso tipo, cambia solo un valore</div>
+
+# D · un converter <em>di valore</em>
+
+<div class="grid grid-cols-2 gap-5 mt-1">
+<div class="code-sm">
+
+```diff
+ public void setVersion(int version) {
+-  // TODO: ... we need to make a breaking change
+-  //  if we want to return always the version
+-  if (version > 1) {
+-    this.version = version;
+-  }
++  this.version = version;
+ }
+```
+
+```java
+@ApiConverter
+public class UploadVersionNumberConverter
+    implements ValueConverter<UploadVersionResponse> {
+
+  @Override
+  public UploadVersionResponse convert(UploadVersionResponse value) {
+    if (!Integer.valueOf(1).equals(value.getVersion())) {
+      return value;
+    }
+    UploadVersionResponse legacy = new UploadVersionResponse();
+    legacy.setNodeId(value.getNodeId());
+    return legacy;
+  }
+}
+```
+
+<Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/versioning/UploadVersionNumberConverter.java" lines="12-24" />
+<Src repo="ce" path="app/src/main/java/com/zextras/carbonio/files/rest/types/UploadVersionResponse.java" lines="17-27" />
+
+</div>
+<div>
+  <ul class="tight" style="padding-left:1.1em">
+    <li>Overwrite della versione 1: prima la risposta non aveva <code>version</code>, adesso <code>{"nodeId":…,"version":1}</code></li>
+    <li>La forma non cambia, quindi <strong>niente tipo legacy</strong>: si toglie solo il valore (con <code>NON_NULL</code> il campo sparisce)</li>
+    <li>Funziona solo perché nel PoC <code>/upload-version</code> ora restituisce l'entity</li>
+    <li>Il tipo è condiviso con l'upload interno, serializzato a mano: lì non si converte, ma i backend sono sempre current</li>
+    <li>Docs: <code>version</code> diventa <code>required</code>, quindi serve la riga nel registry</li>
+  </ul>
+  <div class="term-green code-sm">
+
+```java
+@ApiChange(since = ApiVersion.CURRENT,
+    converter = UploadVersionNumberConverter.class)
+```
+
+  </div>
+  <Src repo="ce" path="app/src/test/java/com/zextras/carbonio/files/it/UploadVersionApiVersioningIT.java" lines="51-74" />
 </div>
 </div>
