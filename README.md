@@ -9,5 +9,6 @@ pnpm dev     # http://localhost:3030
 pnpm build   # static site in dist/
 ```
 
-The demo branch is `versioning-poc-test-impl` on zextras/carbonio-files-ce. Snippets from
-private repositories are shown as pseudocode with a link to the exact line.
+The deck lives in `slides.md`: about a dozen slides on the model, what a developer writes for
+each kind of change, and which checks catch a mistake. Snippets are short excerpts from the demo
+branch `versioning-poc-test-impl` on zextras/carbonio-files-ce, trimmed to the lines that matter.
