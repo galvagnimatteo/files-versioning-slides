@@ -67,7 +67,7 @@ HTTP/1.1 200 OK
 X-FILES-API-VERSION: 3.0.14
 ```
 
-<div class="note mt-2">Sotto la finestra: <code>400 UNSUPPORTED_API_VERSION</code>. Più nuovo del server: servito con il contratto del server, che lo dichiara nella risposta.</div>
+<div class="note mt-2">Fuori dalla finestra, sotto la più vecchia o sopra il server: <code>422 UNSUPPORTED_API_VERSION</code>. Malformata: <code>400</code>. La risposta ripete la versione servita.</div>
 
 </div>
 <div>
@@ -75,7 +75,7 @@ X-FILES-API-VERSION: 3.0.14
     <li>Il numero è la <strong>versione del pacchetto così com'è</strong>, decisa da semantic-release (CE <code>3.x</code>, Advanced <code>4.x</code>): ogni release la muove, anche quando non tocca le API</li>
     <li><strong>Nessun header = current</strong>: chi non lo manda vede il comportamento nuovo, come oggi</li>
     <li><strong>Backward</strong> (client vecchio, server nuovo): converte il server</li>
-    <li><strong>Forward</strong> (client nuovo, server vecchio): il server dichiara la sua versione, si adatta il client</li>
+    <li><strong>Forward</strong> (client nuovo, server vecchio): il client legge la versione del server e adatta le chiamate; il server rifiuta con 422 ciò che non serve</li>
   </ul>
 </div>
 </div>
@@ -108,7 +108,7 @@ final class FilesApiChanges {}
   <ul class="tight" style="padding-left:1.1em">
     <li>È il <strong>changelog del contratto</strong> e l'unico posto dove compare una versione</li>
     <li>In PR si scrive sempre <code>since = ApiVersion.CURRENT</code>: il numero vero lo scrive la release</li>
-    <li>Sui build di sviluppo una riga <code>CURRENT</code> vale per ogni client che manda una versione, quindi i test la esercitano subito</li>
+    <li>Sui build di sviluppo una riga <code>CURRENT</code> vale per ogni client con una versione più vecchia dello snapshot del server, quindi i test la esercitano subito</li>
     <li>Advanced ha il suo registry: quando alza il pin di CE lega i converter ereditati con <code>inherits</code> o <code>replaces</code></li>
   </ul>
 </div>
@@ -282,7 +282,7 @@ void anOldClientUploadsIntoItsParentId() { ... }
 
 <div class="timeline" style="margin-top:.6rem">
   <div class="tl-line"></div>
-  <div class="tl-item"><div class="tl-dot done"></div><div class="tl-bubble"><div class="tl-bubble-date">1 · PR</div><div class="tl-bubble-title">since = CURRENT</div><div class="tl-bubble-note">vale per ogni client con versione: i test lo esercitano subito</div></div></div>
+  <div class="tl-item"><div class="tl-dot done"></div><div class="tl-bubble"><div class="tl-bubble-date">1 · PR</div><div class="tl-bubble-title">since = CURRENT</div><div class="tl-bubble-note">vale per i client più vecchi dello snapshot: i test lo esercitano subito</div></div></div>
   <div class="tl-item"><div class="tl-dot done"></div><div class="tl-bubble"><div class="tl-bubble-date">2 · merge</div><div class="tl-bubble-title">semantic-release</div><div class="tl-bubble-note">ogni merge su main è una release, il tipo di commit decide il numero</div></div></div>
   <div class="tl-item"><div class="tl-dot today"></div><div class="tl-bubble today-bubble"><div class="tl-bubble-date">3 · stamping</div><div class="tl-bubble-title">CURRENT → "3.1.0"</div><div class="tl-bubble-note">scritto nel commit di release, per sempre</div></div></div>
   <div class="tl-item"><div class="tl-dot"></div><div class="tl-bubble"><div class="tl-bubble-date">4 · 15 mesi</div><div class="tl-bubble-title">il build di main avvisa</div><div class="tl-bubble-note">una riga nel log elenca le versioni fuori finestra ancora supportate</div></div></div>
@@ -318,13 +318,16 @@ void anOldClientUploadsIntoItsParentId() { ... }
 <div class="code-sm">
 
 ```ts
-// generata al build, dalle versioni contro cui il client è validato
-const FILES_API = { ce: '3.0.14', advanced: '4.0.14' } as const
+// all'avvio: GET /services/files/versions
+// → { edition, current, oldestSupported }
+v = min(client.newest, server.current)
+if (v < max(client.oldest, server.oldestSupported))
+  fail()  // nessuna versione in comune
 
-headers['X-FILES-API-VERSION'] = FILES_API[isCarbonioCE ? 'ce' : 'advanced']
+headers['X-FILES-API-VERSION'] = v
 
-if (res.status === 400 && body.code === 'UNSUPPORTED_API_VERSION') {
-  // client troppo vecchio: chiedere l'aggiornamento
+if (res.status === 422 && body.code === 'UNSUPPORTED_API_VERSION') {
+  discover(); retry()  // una volta; gli upload no
 }
 ```
 
@@ -332,7 +335,8 @@ if (res.status === 400 && body.code === 'UNSUPPORTED_API_VERSION') {
 <div>
   <div class="card-amber small"><strong>L'header va nei client prima del primo cambio con converter.</strong> Oggi nessun client Files lo manda: un client senza header riceve il contratto nuovo.</div>
   <ul class="tight mt-3" style="padding-left:1.1em">
-    <li>Sempre un valore concreto della propria edizione, mai <code>current</code></li>
+    <li>Manda la <strong>versione negoziata</strong>, la più alta che client e server parlano; su un server di sviluppo è il suo snapshot</li>
+    <li>Le chiamate cambiate scelgono la forma dalla versione negoziata, nel layer di rete; senza versione in comune falliscono senza partire</li>
     <li>Link e route da browser (<code>&lt;img src&gt;</code>, download, <code>/public/**</code>) non mandano header: restano current, lì solo cambi additivi</li>
     <li><code>/internal/**</code>: i backend si aggiornano insieme, fuori scope</li>
   </ul>
